@@ -743,7 +743,7 @@ while(True):
     break
 
 ```
-## FIRST AND FOLLOW
+## FIRST AND FOLLOW PY
 ```
 import sys
 sys.setrecursionlimit(60)
@@ -922,7 +922,7 @@ for non_terminal in non_terminals:
 ```
 
 
-## PREDICTIVE PARSING
+## PREDICTIVE PARSING PY
 ```
 gram = {
 	"E":["E+T","T"],
