@@ -1459,3 +1459,56 @@ Triple(pos)
 
 # GIVE SPACE BETWEEN TWO EXPRESSION
 ```
+## SIMPLE CODE GENERATOR
+```
+lines = []
+
+while True:
+    user_input = input()
+    if user_input == '':
+        break
+    else:
+        lines.append(user_input + '\n')
+        
+for idx,line in enumerate(lines):
+    
+    if line[3] == '+':
+        print(f'MOV R{idx} {line[2]}')
+        print(f'ADD R{idx} {line[4]}')
+        print(f'MOV {line[0]} R{idx}')
+    
+    if line[3] == '-':
+        print(f'MOV R{idx} {line[2]}')
+        print(f'SUB R{idx} {line[4]}')
+        print(f'MOV {line[0]} R{idx}')
+        
+    if line[3] == '*':
+        print(f'MOV R{idx} {line[2]}')
+        print(f'MUL R{idx} {line[4]}')
+        print(f'MOV {line[0]} R{idx}')
+        
+        
+    if line[3] == '/':
+        print(f'MOV R{idx} {line[2]}')
+        print(f'DIV R{idx} {line[4]}')
+        print(f'MOV {line[0]} R{idx}')
+```
+
+## DAG
+```
+lines = []
+while True:
+    user_inp = input("Give me equation")
+    
+    if user_inp == '':
+        break;
+    else:
+        lines.append(user_inp)
+
+print(lines)
+print(f'{"Label" : <15}' + f'{"ptr" : <15}' + f'{"leftPtr" : <15}' + f'{"rightPtr" : <15}')
+
+for line in lines:
+    print(line)
+    print(f'{line[0] : <15}' + f'{line[3] : <15}' + f'{line[2] : <15}' + f'{line[4] : <15}')
+```
