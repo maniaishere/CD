@@ -1,4 +1,4 @@
-# CD
+## LEXICAL ANALYZER
 ```
 file  = open("./add.c", 'r')
 lines = file.readlines()
