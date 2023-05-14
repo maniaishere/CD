@@ -534,7 +534,7 @@ int main()
 // 2
 ```
 
-## SHIFT REDUCE
+## SHIFT REDUCE - PY
 ```
 gram = {
 	"E":["E*E","E+E","i"]
@@ -572,77 +572,174 @@ while True:
 ```
 ## RECURSION
 ```
-#include <iostream>
-#include <vector>
-#include <string>
-using namespace std;
-
-int main()
-{
-    int n;
-    cout<<"\nEnter number of non terminals: ";
-    cin>>n;
-    cout<<"\nEnter non terminals one by one: ";
-    int i;
-    vector<string> nonter(n);
-    vector<int> leftrecr(n,0);
-    for(i=0;i<n;++i) {
-            cout<<"\nNon terminal "<<i+1<<" : ";
-        cin>>nonter[i];
-    }
-    vector<vector<string> > prod;
-    cout<<"\nEnter 'esp' for null";
-    for(i=0;i<n;++i) {
-        cout<<"\nNumber of "<<nonter[i]<<" productions: ";
-        int k;
-        cin>>k;
-        int j;
-        cout<<"\nOne by one enter all "<<nonter[i]<<" productions";
-        vector<string> temp(k);
-        for(j=0;j<k;++j) {
-            cout<<"\nRHS of production "<<j+1<<": ";
-            string abc;
-            cin>>abc;
-            temp[j]=abc;
-            if(nonter[i].length()<=abc.length()&&nonter[i].compare(abc.substr(0,nonter[i].length()))==0)
-                leftrecr[i]=1;
-        }
-        prod.push_back(temp);
-    }
-    for(i=0;i<n;++i) {
-        cout<<leftrecr[i];
-    }
-    for(i=0;i<n;++i) {
-        if(leftrecr[i]==0)
-            continue;
-        int j;
-        nonter.push_back(nonter[i]+"'");
-        vector<string> temp;
-        for(j=0;j<prod[i].size();++j) {
-            if(nonter[i].length()<=prod[i][j].length()&&nonter[i].compare(prod[i][j].substr(0,nonter[i].length()))==0) {
-                string abc=prod[i][j].substr(nonter[i].length(),prod[i][j].length()-nonter[i].length())+nonter[i]+"'";
-                temp.push_back(abc);
-                prod[i].erase(prod[i].begin()+j);
-                --j;
-            }
-            else {
-                prod[i][j]+=nonter[i]+"'";
-            }
-        }
-        temp.push_back("esp");
-        prod.push_back(temp);
-    }
-    cout<<"\n\n";
-    cout<<"\nNew set of non-terminals: ";
-    for(i=0;i<nonter.size();++i)
-        cout<<nonter[i]<<" ";
-    cout<<"\n\nNew set of productions: ";
-    for(i=0;i<nonter.size();++i) {
-        int j;
-        for(j=0;j<prod[i].size();++j) {
-            cout<<"\n"<<nonter[i]<<" -> "<<prod[i][j];
-        }
-    }
-    return 0;
+gram = {
+    "E":["E+T","T"],
+    "T":["T*F","F"],
+    "F":["(E)","i"]
 }
+
+def removeDirectLR(gramA, A):
+	temp = gramA[A]
+	tempCr = []
+	tempInCr = []
+	for i in temp:
+		if i[0] == A:
+			tempInCr.append(i[1:]+[A+"'"])
+		else:
+			tempCr.append(i+[A+"'"])
+	tempInCr.append(["e"])
+	gramA[A] = tempCr
+	gramA[A+"'"] = tempInCr
+	return gramA
+
+
+def checkForIndirect(gramA, a, ai):
+	if ai not in gramA:
+		return False
+	if a == ai:
+		return True
+	for i in gramA[ai]:
+		if i[0] == ai:
+			return False
+		if i[0] in gramA:
+			return checkForIndirect(gramA, a, i[0])
+	return False
+
+def rep(gramA, A):
+	temp = gramA[A]
+	newTemp = []
+	for i in temp:
+		if checkForIndirect(gramA, A, i[0]):
+			t = []
+			for k in gramA[i[0]]:
+				t=[]
+				t+=k
+				t+=i[1:]
+				newTemp.append(t)
+
+		else:
+			newTemp.append(i)
+	gramA[A] = newTemp
+	return gramA
+
+def rem(gram):
+	c = 1
+	conv = {}
+	gramA = {}
+	revconv = {}
+	for j in gram:
+		conv[j] = "A"+str(c)
+		gramA["A"+str(c)] = []
+		c+=1
+
+	for i in gram:
+		for j in gram[i]:
+			temp = []
+			for k in j:
+				if k in conv:
+					temp.append(conv[k])
+				else:
+					temp.append(k)
+			gramA[conv[i]].append(temp)
+
+	for i in range(c-1,0,-1):
+		ai = "A"+str(i)
+		for j in range(0,i):
+			aj = gramA[ai][0][0]
+			if ai!=aj :
+				if aj in gramA and checkForIndirect(gramA,ai,aj):
+					gramA = rep(gramA, ai)
+
+	for i in range(1,c):
+		ai = "A"+str(i)
+		for j in gramA[ai]:
+			if ai==j[0]:
+				gramA = removeDirectLR(gramA, ai)
+				break
+
+	op = {}
+	for i in gramA:
+		a = str(i)
+		for j in conv:
+			a = a.replace(conv[j],j)
+		revconv[i] = a
+
+	for i in gramA:
+		l = []
+		for j in gramA[i]:
+			k = []
+			for m in j:
+				if m in revconv:
+					k.append(m.replace(m,revconv[m]))
+				else:
+					k.append(m)
+			l.append(k)
+		op[revconv[i]] = l
+
+	return op
+
+result = rem(gram)
+
+for i in result:
+    print(f'{i}->{result[i]}')
+```
+## FACTORING - PY
+```
+from itertools import takewhile
+def groupby(ls):
+    d = {}
+    ls = [ y[0] for y in rules ]
+    initial = list(set(ls))
+    for y in initial:
+        for i in rules:
+            if i.startswith(y):
+                if y not in d:
+                    d[y] = []
+                d[y].append(i)
+    return d
+
+def prefix(x):
+    return len(set(x)) == 1
+
+
+starting=""
+rules=[]
+common=[]
+alphabetset=["A'","B'","C'","D'","E'","F'","G'","H'","I'","J'","K'","L'","M'","N'","O'","P'","Q'","R'","S'","T'","U'","V'","W'","X'","Y'","Z'"]
+
+
+s= "S->aSa|aSv"
+while(True):
+    rules=[]
+    common=[]
+    split=s.split("->")
+    starting=split[0]
+    for i in split[1].split("|"):
+        rules.append(i)
+
+    for k, l in groupby(rules).items():
+        r = [l[0] for l in takewhile(prefix, zip(*l))]
+        common.append(''.join(r))
+    for i in common:
+        newalphabet=alphabetset.pop()
+        print(starting+"->"+i+newalphabet)
+        index=[]
+        for k in rules:
+            if(k.startswith(i)):
+                index.append(k)
+        print(newalphabet+"->",end="")
+        for j in index[:-1]:
+            stringtoprint=j.replace(i,"", 1)+"|"
+            if stringtoprint=="|":
+                print("\u03B5","|",end="")
+            else:
+                print(j.replace(i,"", 1)+"|",end="")
+        stringtoprint=index[-1].replace(i,"", 1)+"|"
+        if stringtoprint=="|":
+            print("\u03B5","",end="")
+        else:
+            print(index[-1].replace(i,"", 1)+"",end="")
+        print("")
+    break
+
 ```
